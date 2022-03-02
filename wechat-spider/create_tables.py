@@ -101,6 +101,7 @@ def create_table():
       `cover` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
       `pics_url` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
       `content_html` text COLLATE utf8mb4_unicode_ci,
+      `html` mediumtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
       `source_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
       `comment_id` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
       `sn` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -131,6 +132,7 @@ def create_table():
       `summary` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
       `qr_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
       `verify` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+      `html` mediumtext COLLATE utf8mb4_unicode_ci DEFAULT NULL,
       `spider_time` datetime DEFAULT NULL,
       PRIMARY KEY (`id`),
       UNIQUE KEY `__biz` (`__biz`)
