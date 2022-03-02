@@ -10,9 +10,12 @@ from db.mysqldb import MysqlDB
 import utils.tools as tools
 from utils.log import log
 from config import config
+import pymongo
 
 db = MysqlDB(**config.get('mysqldb'))
-
+mongo_client = pymongo.MongoClient("mongodb://192.168.21.55:27017/")
+mongo_db = mongo_client["wechat"]
+mongo_col = mongo_db['article']
 
 def save_account(data):
     log.debug(tools.dumps_json(data))
@@ -47,7 +50,12 @@ def save_article(data):
     sql = tools.make_insert_sql('wechat_article', data, insert_ignore=True)
     return db.add(sql)
 
-
+def save_article_to_mongo(data):
+    if mongo_col.find_one({'sn': data['sn']}):
+        pass
+    else:
+        mongo_col.insert_one(data)
+        
 def save_article_dynamic(data):
     log.debug(tools.dumps_json(data))
 
@@ -60,3 +68,4 @@ def save_article_commnet(datas: list):
 
     sql, datas = tools.make_batch_sql('wechat_article_comment', datas)
     db.add_batch(sql, datas)
+
