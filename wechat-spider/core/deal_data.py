@@ -28,7 +28,7 @@ class DealData:
         """
         __biz = tools.get_param(req_url, "__biz")
 
-        regex = 'id="nickname">(.*?)</strong>'
+        regex = 'var nickname = "(.+?)"'
         account = tools.get_info(data, regex, fetch_one=True).strip()
 
         regex = 'profile_avatar">.*?<img src="(.*?)"'
@@ -54,6 +54,7 @@ class DealData:
             "summary": summary,
             "qr_code": qr_code,
             "verify": verify,
+            "html": data,
             "spider_time": tools.get_current_date(),
         }
 
@@ -347,7 +348,7 @@ class DealData:
             '//div[@class="rich_media_content "]|//div[@class="rich_media_content"]|//div[@class="share_media"]'
         )
         title = (
-            selector.xpath('//h2[@class="rich_media_title"]/text()')
+            selector.xpath('//meta[@property="og:title"]/@content')
             .extract_first(default="")
             .strip()
         )
@@ -357,9 +358,7 @@ class DealData:
             .strip()
         )
         author = (
-            selector.xpath(
-                '//span[@class="rich_media_meta rich_media_meta_text"]//text()'
-            )
+            selector.xpath('//meta[@name="author"]/@content')
             .extract_first(default="")
             .strip()
         )
@@ -374,9 +373,8 @@ class DealData:
         biz = tools.get_param(req_url, "__biz")
 
         digest = selector.re_first('var msg_desc = "(.*?)"')
-        cover = selector.re_first('var cover = "(.*?)";') or selector.re_first(
-            'msg_cdn_url = "(.*?)"'
-        )
+        cover = selector.xpath('//meta[@property="og:image"]/@content').extract()
+
         source_url = selector.re_first("var msg_source_url = '(.*?)';")
 
         content_html = content.extract_first(default="")
@@ -393,6 +391,7 @@ class DealData:
             "cover": cover,
             "pics_url": pics_url,
             "content_html": content_html,
+            "html": text,
             "source_url": source_url,
             "comment_id": comment_id,
             "sn": sn,
@@ -403,6 +402,8 @@ class DealData:
         if article_data and data_pipeline.save_article(article_data) is not None:
             self._task_manager.update_article_task_state(sn, 1)
 
+        # 入mongodb
+        data_pipeline.save_article_to_mongo(article_data)
         return self._task_manager.get_task()
 
     def deal_article_dynamic_info(self, req_data, text):
@@ -465,3 +466,4 @@ class DealData:
 
 
 deal_data = DealData()
+
